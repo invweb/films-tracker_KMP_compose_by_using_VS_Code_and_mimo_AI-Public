@@ -4,7 +4,6 @@ dist/
 data/
 *.db
 .DS_Store
-.expo/
 .web/
 *.log
 

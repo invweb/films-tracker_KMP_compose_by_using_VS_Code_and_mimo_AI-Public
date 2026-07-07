@@ -90,7 +90,7 @@ fun MovieGrid(movies: List<Movie>, onMovieClick: (Movie) -> Unit) {
 }
 
 @Composable
-fun SearchBar(query: String, onQueryChange: (String) -> Unit, placeholder: String = "Movie title...") {
+fun SearchBar(query: String, onQueryChange: (String) -> Unit, placeholder: String = Strings.get("search_placeholder")) {
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,

@@ -15,25 +15,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.films.shared.api.FilmsApi
+import com.films.shared.model.Stats
 import com.films.shared.model.UserMovie
 import kotlinx.coroutines.launch
 
-enum class ListTab(val label: String) {
-    WATCHLIST("Watchlist"), WATCHED("Watched"), FAVORITES("Favorites")
+enum class ListTab(val key: String) {
+    WATCHLIST("lists_tab_watchlist"),
+    WATCHED("lists_tab_watched"),
+    FAVORITES("lists_tab_favorites")
 }
 
 @Composable
-fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
+fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     var activeTab by remember { mutableStateOf(ListTab.WATCHLIST) }
     var watchlist by remember { mutableStateOf(emptyList<UserMovie>()) }
     var watched by remember { mutableStateOf(emptyList<UserMovie>()) }
     var favorites by remember { mutableStateOf(emptyList<UserMovie>()) }
+    var stats by remember { mutableStateOf<Stats?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         watchlist = api.getWatchlist()
         watched = api.getWatched()
         favorites = api.getFavorites()
+        stats = api.getStats()
     }
 
     val currentList = when (activeTab) {
@@ -47,16 +52,26 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
         ListTab.FAVORITES to favorites.size
     )
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("My Lists", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
-        Spacer(modifier = Modifier.height(16.dp))
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(Strings.get("lists_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        stats?.let { s ->
+            Text(
+                text = Strings.get("lists_avg_rating", s.avgRating?.let { "%.1f".format(it) } ?: "—"),
+                color = Gold,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ListTab.entries.forEach { tab ->
                 FilterChip(
                     selected = activeTab == tab,
                     onClick = { activeTab = tab },
-                    label = { Text("${tab.label} (${counts[tab]})", fontSize = 12.sp) },
+                    label = { Text("${Strings.get(tab.key)} (${counts[tab]})", fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Accent,
                         selectedLabelColor = Color.White
@@ -99,7 +114,7 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
                             Text(
                                 text = buildString {
                                     append(movie.release_date?.take(4) ?: "")
-                                    movie.rating?.let { append(" · Rating: $it/10") }
+                                    movie.rating?.let { append(" · ${Strings.get("lists_rating", it.toString())}") }
                                     movie.vote_average?.let { append(" · ★ ${"%.1f".format(it)}") }
                                 },
                                 color = Muted,
@@ -114,7 +129,7 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
                                 favorites = api.getFavorites()
                             }
                         }) {
-                            Text("Remove", color = Accent, fontSize = 12.sp)
+                            Text(Strings.get("lists_remove"), color = Accent, fontSize = 12.sp)
                         }
                     }
                 }
@@ -123,7 +138,7 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
 
         if (currentList.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("List is empty", color = Muted, fontSize = 16.sp)
+                Text(Strings.get("lists_empty"), color = Muted, fontSize = 16.sp)
             }
         }
     }

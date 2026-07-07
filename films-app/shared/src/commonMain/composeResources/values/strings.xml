@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Films</string>
+
+    <!-- Navigation -->
+    <string name="tab_search">Search</string>
+    <string name="tab_lists">Lists</string>
+    <string name="tab_premieres">Premieres</string>
+    <string name="tab_recommendations">Recommendations</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Search Movies</string>
+    <string name="search_placeholder">Search movies...</string>
+    <string name="search_trending">Trending Now</string>
+    <string name="search_results">Results</string>
+
+    <!-- Lists Screen -->
+    <string name="lists_title">My Lists</string>
+    <string name="lists_empty">List is empty</string>
+    <string name="lists_tab_watchlist">Want to Watch</string>
+    <string name="lists_tab_watched">Watched</string>
+    <string name="lists_tab_favorites">Favorites</string>
+    <string name="lists_remove">Remove</string>
+    <string name="lists_avg_rating">★ Average: %s</string>
+    <string name="lists_rating">Rating: %s/10</string>
+
+    <!-- Calendar Screen -->
+    <string name="calendar_title">Upcoming Premieres</string>
+    <string name="calendar_date_unknown">Date TBD</string>
+
+    <!-- Recommendations Screen -->
+    <string name="recs_title">Recommended For You</string>
+    <string name="recs_subtitle">Based on your watch history</string>
+
+    <!-- Movie Detail Screen -->
+    <string name="detail_back">← Back to Search</string>
+    <string name="detail_overview">Overview</string>
+    <string name="detail_minutes">min</string>
+    <string name="detail_btn_watchlist">Want to Watch</string>
+    <string name="detail_btn_watchlist_active">✓ Want to Watch</string>
+    <string name="detail_btn_watched">Watched</string>
+    <string name="detail_btn_watched_active">✓ Watched</string>
+    <string name="detail_btn_favorites">Add to Favorites</string>
+    <string name="detail_btn_favorites_active">✓ In Favorites</string>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_similar">Similar Movies</string>
+    <string name="detail_loading">Loading...</string>
+</resources>

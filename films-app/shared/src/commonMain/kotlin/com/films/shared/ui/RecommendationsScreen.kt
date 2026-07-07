@@ -18,7 +18,7 @@ import com.films.shared.api.FilmsApi
 import com.films.shared.model.Movie
 
 @Composable
-fun RecommendationsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
+fun RecommendationsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     var recs by remember { mutableStateOf(emptyList<Movie>()) }
     var loading by remember { mutableStateOf(true) }
 
@@ -27,10 +27,10 @@ fun RecommendationsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
         loading = false
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Recommended For You", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(Strings.get("recs_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
         Spacer(modifier = Modifier.height(4.dp))
-        Text("Based on your watch history", color = Muted, fontSize = 13.sp)
+        Text(Strings.get("recs_subtitle"), color = Muted, fontSize = 13.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
         if (loading) {

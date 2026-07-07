@@ -11,8 +11,14 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.films.shared.api.FilmsApi
 import com.films.shared.ui.*
+import java.util.Locale
 
 fun main() = application {
+    val locale = Locale.getDefault().language
+    if (locale == "ru") {
+        Strings.setLocale("ru")
+    }
+
     val api = remember { FilmsApi() }
     var currentScreen by remember { mutableStateOf("search") }
     var selectedMovieId by remember { mutableIntStateOf(0) }
@@ -33,10 +39,10 @@ fun main() = application {
                             Text("Films", color = Accent, style = MaterialTheme.typography.headlineMedium)
                             Spacer(modifier = Modifier.height(24.dp))
                             listOf(
-                                "search" to "Search",
-                                "lists" to "My Lists",
-                                "calendar" to "Premieres",
-                                "recs" to "For You"
+                                "search" to Strings.get("tab_search"),
+                                "lists" to Strings.get("tab_lists"),
+                                "calendar" to Strings.get("tab_premieres"),
+                                "recs" to Strings.get("tab_recommendations")
                             ).forEach { (key, label) ->
                                 Surface(
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),

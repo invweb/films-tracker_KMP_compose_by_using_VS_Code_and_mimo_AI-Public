@@ -47,6 +47,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:3.0.2")
+                implementation("io.coil-kt:coil-compose:2.7.0")
             }
         }
     }

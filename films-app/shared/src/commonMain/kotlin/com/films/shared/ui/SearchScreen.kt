@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
+fun SearchScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     var query by remember { mutableStateOf("") }
     var results by remember { mutableStateOf(emptyList<Movie>()) }
     var trending by remember { mutableStateOf(emptyList<Movie>()) }
@@ -41,12 +41,12 @@ fun SearchScreen(api: FilmsApi, onMovieClick: (Int) -> Unit) {
     }
 
     val movies = if (query.length >= 2) results else trending
-    val label = if (query.length >= 2) "Results" else "Trending Now"
+    val label = if (query.length >= 2) Strings.get("search_results") else Strings.get("search_trending")
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Search Movies", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(Strings.get("search_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
         Spacer(modifier = Modifier.height(16.dp))
-        SearchBar(query = query, onQueryChange = { query = it })
+        SearchBar(query = query, onQueryChange = { query = it }, placeholder = Strings.get("search_placeholder"))
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "$label ${if (loading) "..." else ""}",

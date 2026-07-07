@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Films</string>
+
+    <!-- Navigation -->
+    <string name="tab_search">Поиск</string>
+    <string name="tab_lists">Списки</string>
+    <string name="tab_premieres">Премьеры</string>
+    <string name="tab_recommendations">Рекомендации</string>
+
+    <!-- Search Screen -->
+    <string name="search_title">Поиск фильмов</string>
+    <string name="search_placeholder">Поиск фильмов...</string>
+    <string name="search_trending">Сейчас в тренде</string>
+    <string name="search_results">Результаты</string>
+
+    <!-- Lists Screen -->
+    <string name="lists_title">Мои списки</string>
+    <string name="lists_empty">Список пуст</string>
+    <string name="lists_tab_watchlist">Хочу посмотреть</string>
+    <string name="lists_tab_watched">Просмотрено</string>
+    <string name="lists_tab_favorites">Избранное</string>
+    <string name="lists_remove">Удалить</string>
+    <string name="lists_avg_rating">★ Средний: %s</string>
+    <string name="lists_rating">Оценка: %s/10</string>
+
+    <!-- Calendar Screen -->
+    <string name="calendar_title">Ближайшие премьеры</string>
+    <string name="calendar_date_unknown">Дата неизвестна</string>
+
+    <!-- Recommendations Screen -->
+    <string name="recs_title">Рекомендации для тебя</string>
+    <string name="recs_subtitle">На основе твоих просмотренных фильмов</string>
+
+    <!-- Movie Detail Screen -->
+    <string name="detail_back">← Назад к поиску</string>
+    <string name="detail_overview">Описание</string>
+    <string name="detail_minutes">мин</string>
+    <string name="detail_btn_watchlist">Хочу посмотреть</string>
+    <string name="detail_btn_watchlist_active">✓ Хочу посмотреть</string>
+    <string name="detail_btn_watched">Просмотрено</string>
+    <string name="detail_btn_watched_active">✓ Просмотрено</string>
+    <string name="detail_btn_favorites">В избранное</string>
+    <string name="detail_btn_favorites_active">✓ В избранное</string>
+    <string name="detail_cast">Актёры</string>
+    <string name="detail_similar">Похожие фильмы</string>
+    <string name="detail_loading">Загрузка...</string>
+</resources>

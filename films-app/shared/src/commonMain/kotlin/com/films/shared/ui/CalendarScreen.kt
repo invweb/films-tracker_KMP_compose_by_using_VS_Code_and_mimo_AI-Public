@@ -16,7 +16,7 @@ import com.films.shared.api.FilmsApi
 import com.films.shared.model.Movie
 
 @Composable
-fun CalendarScreen(api: FilmsApi) {
+fun CalendarScreen(api: FilmsApi, modifier: Modifier = Modifier) {
     var upcoming by remember { mutableStateOf(emptyList<Movie>()) }
     var loading by remember { mutableStateOf(true) }
 
@@ -25,8 +25,8 @@ fun CalendarScreen(api: FilmsApi) {
         loading = false
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Upcoming Premieres", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(Strings.get("calendar_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
         Spacer(modifier = Modifier.height(16.dp))
 
         if (loading) {
@@ -56,7 +56,7 @@ fun CalendarScreen(api: FilmsApi) {
                                 Text(movie.title, color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = movie.release_date.ifEmpty { "Date TBD" },
+                                    text = movie.release_date.ifEmpty { Strings.get("calendar_date_unknown") },
                                     color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
