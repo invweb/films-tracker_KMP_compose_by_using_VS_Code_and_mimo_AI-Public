@@ -4,7 +4,7 @@ A web app for tracking movies you want to watch, with recommendations, ratings, 
 
 ![Search](screenshots/search.png)
 ![Movie Detail](screenshots/movie-detail.png)
-![Lists](screenshots/lists.png)
+![Premieres](screenshots/calendar.png)
 
 ## Tech Stack
 
@@ -63,6 +63,7 @@ Films/
 ├── server/          # Express API + SQLite
 ├── web/             # React + Vite web client
 ├── mobile/          # React Native + Expo (mobile app)
+├── screenshots/     # App screenshots
 └── README.md
 ```
 
