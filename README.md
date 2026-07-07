@@ -1,6 +1,6 @@
 # Films — Movie Tracker & Planner
 
-A web app for tracking movies you want to watch, with recommendations, ratings, and premiere calendar.
+A cross-platform movie tracking app with recommendations, ratings, and premiere calendar. Built with **Kotlin Multiplatform (KMP)** + **Compose Multiplatform** and a Node.js backend.
 
 ![Search](screenshots/search.png)
 ![Movie Detail](screenshots/movie-detail.png)
@@ -17,26 +17,89 @@ A web app for tracking movies you want to watch, with recommendations, ratings, 
 - **Export** lists to CSV
 - **Detailed movie pages** — description, cast, similar movies, genres
 - **Dark theme** UI
+- **Cross-platform** — Desktop (JVM), Web (WasmJS), Android
 
 ## Tech Stack
 
-- **Frontend**: React + Vite + TypeScript
-- **Backend**: Node.js + Express + SQLite (sql.js)
-- **Movie Data**: Local database (50+ films) + optional OMDb API
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Kotlin Multiplatform + Compose Multiplatform |
+| **Backend** | Node.js + Express + SQLite (sql.js) |
+| **Movie Data** | Local database (48 films) + optional OMDb API |
+| **Desktop** | Compose Desktop (JVM) |
+| **Web** | Compose for Web (WasmJS) |
+| **Android** | Compose for Android |
 
 ## Quick Start
 
-```bash
-# Backend
-cd server && npm install && npm run dev
+### 1. Backend
 
-# Web client (in separate terminal)
-cd web && npm install && npm run dev
+```bash
+cd server
+npm install
+npm run dev
 ```
 
-Open **http://localhost:5173**
+Server runs at `http://localhost:3001`
+
+### 2. Desktop App (KMP)
+
+```bash
+cd films-app
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17  # or your JDK 17+ path
+./gradlew :desktop:run
+```
+
+### 3. Web Client (React — alternative)
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`
 
 > The app works out of the box with a built-in local movie database. No API key required for basic functionality.
+
+## KMP Project Structure
+
+```
+films-app/
+├── shared/                      # Shared business logic (Kotlin Multiplatform)
+│   └── src/commonMain/kotlin/com/films/shared/
+│       ├── api/FilmsApi.kt      # HTTP client (Ktor)
+│       ├── model/Models.kt      # Movie, UserMovie, Stats
+│       └── ui/                  # Compose screens (shared across all platforms)
+│           ├── SearchScreen.kt
+│           ├── ListsScreen.kt
+│           ├── CalendarScreen.kt
+│           ├── RecommendationsScreen.kt
+│           └── MovieDetailScreen.kt
+├── desktop/                     # Desktop app (JVM) ✅
+│   └── src/desktopMain/
+├── web/                         # Web app (WasmJS)
+│   └── src/wasmJsMain/
+├── android/                     # Android app
+│   └── src/main/
+├── build.gradle.kts             # Root build file
+├── settings.gradle.kts
+└── gradlew
+```
+
+## Backend Structure
+
+```
+server/
+├── src/
+│   ├── db.ts                    # SQLite database (sql.js)
+│   ├── local-movies.ts          # 48 curated films with full metadata
+│   ├── routes/
+│   │   ├── movies.ts            # User lists CRUD + export CSV
+│   │   └── tmdb.ts              # Movie search, trending, recommendations
+│   └── index.ts                 # Express entry point
+└── .env.example
+```
 
 ## Optional: OMDb API Key
 
@@ -51,29 +114,7 @@ For extended search (access to 500K+ movies), you can add an OMDb API key:
    ```
 5. Restart the server
 
-> Without the key, the app uses the local database of 50+ curated films — search, trending, recommendations, and premieres all work offline.
-
-## Project Structure
-
-```
-Films/
-├── server/              # Express API + SQLite + local movie DB
-│   ├── src/
-│   │   ├── db.ts        # SQLite database
-│   │   ├── local-movies.ts  # 50+ curated movies with full metadata
-│   │   ├── routes/
-│   │   │   ├── movies.ts    # User lists CRUD
-│   │   │   └── tmdb.ts     # Movie search & details
-│   │   └── index.ts
-│   └── .env.example
-├── web/                 # React + Vite web client
-│   └── src/
-│       ├── pages/       # Search, Lists, Calendar, Recommendations, Movie Detail
-│       └── services/    # API client
-├── mobile/              # React Native + Expo (mobile app)
-├── screenshots/         # App screenshots
-└── README.md
-```
+> Without the key, the app uses the local database of 48 curated films — search, trending, recommendations, and premieres all work offline.
 
 ## License
 
