@@ -24,10 +24,17 @@ actual fun AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(imageUrl)
                 .crossfade(true)
+                .allowHardware(false)
                 .build(),
             contentDescription = contentDescription,
             modifier = modifier.background(DarkSurface),
             contentScale = ContentScale.Crop,
+            onError = {
+                // Image failed to load, Coil shows placeholder automatically
+            },
+            onSuccess = {
+                // Image loaded successfully
+            },
         )
     } else {
         PlaceholderImage(contentDescription, modifier)
