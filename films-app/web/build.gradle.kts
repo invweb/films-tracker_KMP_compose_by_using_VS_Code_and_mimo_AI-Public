@@ -9,6 +9,16 @@ kotlin {
         browser()
         binaries.executable()
     }
+
+    sourceSets {
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(project(":shared"))
+                implementation(compose.material3)
+                implementation(compose.foundation)
+            }
+        }
+    }
 }
 
 compose.experimental {

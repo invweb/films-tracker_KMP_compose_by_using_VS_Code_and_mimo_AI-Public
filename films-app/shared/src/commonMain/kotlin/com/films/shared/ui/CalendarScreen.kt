@@ -3,6 +3,8 @@ package com.films.shared.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,19 +16,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.films.shared.api.FilmsApi
 import com.films.shared.model.Movie
+import kotlinx.coroutines.launch
 
 @Composable
 fun CalendarScreen(api: FilmsApi, modifier: Modifier = Modifier) {
     var upcoming by remember { mutableStateOf(emptyList<Movie>()) }
     var loading by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        upcoming = api.upcoming()
-        loading = false
+    fun refresh() {
+        scope.launch {
+            loading = true
+            upcoming = api.upcoming()
+            loading = false
+        }
     }
 
+    LaunchedEffect(Unit) { refresh() }
+
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        Text(Strings.get("calendar_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(Strings.get("calendar_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1f))
+            IconButton(onClick = { refresh() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Muted)
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         if (loading) {
@@ -60,7 +74,7 @@ fun CalendarScreen(api: FilmsApi, modifier: Modifier = Modifier) {
                                     color = Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
-                                Text("★ ${"%.1f".format(movie.vote_average)}", color = Gold, fontSize = 14.sp)
+                                Text("★ ${movie.vote_average.formatOneDecimal()}", color = Gold, fontSize = 14.sp)
                             }
                         }
                     }

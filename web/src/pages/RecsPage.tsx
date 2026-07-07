@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { tmdbApi, img } from '../services/api';
-import { Movie } from '../types';
 
 export default function RecsPage() {
-  const [recs, setRecs] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['recommendations'],
+    queryFn: () => tmdbApi.recommendations(),
+  });
 
-  useEffect(() => {
-    tmdbApi.recommendations().then(d => { setRecs(d.results || []); setLoading(false); });
-  }, []);
+  const recs = data?.results || [];
 
   return (
     <div>
@@ -18,15 +17,17 @@ export default function RecsPage() {
       <div className="movie-grid">
         {recs.map(m => (
           <Link to={`/movie/${m.id}`} key={m.id} className="movie-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <img src={img(m.poster_path)} alt={m.title} />
+            <img src={img(m.poster_path)} alt={m.title} loading="lazy" />
             <div className="title">{m.title}</div>
             <div className="meta">★ {m.vote_average?.toFixed(1)}</div>
           </Link>
         ))}
       </div>
-      {!loading && recs.length === 0 && (
+      {!isLoading && !error && recs.length === 0 && (
         <div className="empty">Add movies to "Watched" to get recommendations</div>
       )}
+      {isLoading && <div className="empty">Loading...</div>}
+      {error && <div className="empty">Failed to load recommendations</div>}
     </div>
   );
 }

@@ -6,6 +6,7 @@ const DATA_DIR = path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'films.db');
 
 let db: Database;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function initDB(): Promise<Database> {
   if (!fs.existsSync(DATA_DIR)) {
@@ -50,7 +51,7 @@ export async function initDB(): Promise<Database> {
     )
   `);
 
-  saveDB();
+  saveNow();
   return db;
 }
 
@@ -59,9 +60,25 @@ export function getDB(): Database {
   return db;
 }
 
-export function saveDB(): void {
+function saveNow(): void {
   if (!db) return;
   const data = db.export();
   const buffer = Buffer.from(data);
   fs.writeFileSync(DB_PATH, buffer);
+}
+
+export function saveDB(): void {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveNow();
+    saveTimer = null;
+  }, 500);
+}
+
+export function flushDB(): void {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  saveNow();
 }

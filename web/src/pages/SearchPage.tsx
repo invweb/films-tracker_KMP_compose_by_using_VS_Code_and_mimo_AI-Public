@@ -1,28 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { tmdbApi, img } from '../services/api';
-import { Movie } from '../types';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Movie[]>([]);
-  const [trending, setTrending] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    tmdbApi.trending().then(d => setTrending(d.results || []));
-  }, []);
+  const { data: trending } = useQuery({
+    queryKey: ['trending'],
+    queryFn: () => tmdbApi.trending(),
+  });
 
-  useEffect(() => {
-    if (query.trim().length < 2) { setResults([]); return; }
-    setLoading(true);
-    const t = setTimeout(() => {
-      tmdbApi.search(query).then(d => { setResults(d.results || []); setLoading(false); });
-    }, 400);
-    return () => clearTimeout(t);
-  }, [query]);
+  const { data: searchData, isLoading: searchLoading } = useQuery({
+    queryKey: ['search', query],
+    queryFn: () => tmdbApi.search(query),
+    enabled: query.trim().length >= 2,
+  });
 
-  const movies = query.trim().length >= 2 ? results : trending;
+  const movies = query.trim().length >= 2 ? (searchData?.results || []) : (trending?.results || []);
   const label = query.trim().length >= 2 ? 'Results' : 'Trending Now';
 
   return (
@@ -34,14 +29,19 @@ export default function SearchPage() {
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
+        {query && (
+          <button className="btn btn-outline" onClick={() => setQuery('')} style={{ flex: '0 0 auto' }}>
+            ✕
+          </button>
+        )}
       </div>
       <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 }}>
-        {label} {loading ? '...' : ''}
+        {label} {searchLoading ? '...' : ''}
       </p>
       <div className="movie-grid">
         {movies.map(m => (
           <Link to={`/movie/${m.id}`} key={m.id} className="movie-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <img src={img(m.poster_path)} alt={m.title} />
+            <img src={img(m.poster_path)} alt={m.title} loading="lazy" />
             <div className="title">{m.title}</div>
             <div className="meta">
               {m.release_date?.slice(0, 4)} · ★ {m.vote_average?.toFixed(1)}
@@ -49,7 +49,7 @@ export default function SearchPage() {
           </Link>
         ))}
       </div>
-      {movies.length === 0 && !loading && <div className="empty">No results found</div>}
+      {movies.length === 0 && !searchLoading && <div className="empty">No results found</div>}
     </div>
   );
 }

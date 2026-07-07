@@ -11,10 +11,20 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+export interface PaginatedResponse<T> {
+  results: T[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export const tmdbApi = {
-  search: (q: string) => request<{ results: Movie[] }>(`/tmdb/search?query=${encodeURIComponent(q)}`),
-  trending: () => request<{ results: Movie[] }>('/tmdb/trending'),
-  upcoming: () => request<{ results: Movie[] }>('/tmdb/upcoming'),
+  search: (q: string, page = 1, limit = 20) =>
+    request<PaginatedResponse<Movie>>(`/tmdb/search?query=${encodeURIComponent(q)}&page=${page}&limit=${limit}`),
+  trending: (page = 1, limit = 20) =>
+    request<PaginatedResponse<Movie>>(`/tmdb/trending?page=${page}&limit=${limit}`),
+  upcoming: (page = 1, limit = 20) =>
+    request<PaginatedResponse<Movie>>(`/tmdb/upcoming?page=${page}&limit=${limit}`),
   movieDetail: (id: number) => request<MovieDetail>(`/tmdb/movie/${id}`),
   recommendations: () => request<{ results: Movie[] }>('/tmdb/recommendations'),
 };

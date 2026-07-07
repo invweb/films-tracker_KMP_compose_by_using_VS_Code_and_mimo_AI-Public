@@ -91,7 +91,7 @@ fun MovieDetailScreen(api: FilmsApi, movieId: Int, onBack: () -> Unit, onMovieCl
                             color = Muted, fontSize = 14.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("★ ${"%.1f".format(m.vote_average)}", color = Gold, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text("★ ${m.vote_average.formatOneDecimal()}", color = Gold, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

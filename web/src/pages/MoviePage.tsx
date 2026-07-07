@@ -1,38 +1,50 @@
-import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tmdbApi, moviesApi, img } from '../services/api';
-import { MovieDetail } from '../types';
 
 export default function MoviePage() {
   const { id } = useParams<{ id: string }>();
-  const [movie, setMovie] = useState<MovieDetail | null>(null);
-  const [inList, setInList] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
+  const tmdbId = Number(id);
 
-  const checkLists = async () => {
-    const all = await moviesApi.getAll();
-    const watchlist = new Set(all.filter(m => m.list_type === 'watchlist').map(m => m.tmdb_id));
-    const watched = new Set(all.filter(m => m.list_type === 'watched').map(m => m.tmdb_id));
-    const favorites = new Set(all.filter(m => m.list_type === 'favorites').map(m => m.tmdb_id));
-    setInList({ watchlist: watchlist.has(Number(id)), watched: watched.has(Number(id)), favorites: favorites.has(Number(id)) });
-  };
+  const { data: movie, isLoading, error } = useQuery({
+    queryKey: ['movie', tmdbId],
+    queryFn: () => tmdbApi.movieDetail(tmdbId),
+    enabled: !!tmdbId,
+  });
 
-  useEffect(() => {
-    if (!id) return;
-    tmdbApi.movieDetail(Number(id)).then(setMovie);
-    checkLists();
-  }, [id]);
+  const { data: listsData } = useQuery({
+    queryKey: ['lists', tmdbId],
+    queryFn: async () => {
+      const [watchlist, watched, favorites] = await Promise.all([
+        moviesApi.getAll('watchlist'),
+        moviesApi.getAll('watched'),
+        moviesApi.getAll('favorites'),
+      ]);
+      return {
+        watchlist: watchlist.some(m => m.tmdb_id === tmdbId),
+        watched: watched.some(m => m.tmdb_id === tmdbId),
+        favorites: favorites.some(m => m.tmdb_id === tmdbId),
+      };
+    },
+    enabled: !!tmdbId,
+  });
 
-  const add = async (listType: string) => {
-    await moviesApi.add({ tmdb_id: Number(id), list_type: listType });
-    checkLists();
-  };
+  const listMutation = useMutation({
+    mutationFn: ({ action, listType }: { action: 'add' | 'remove'; listType: string }) =>
+      action === 'add'
+        ? moviesApi.add({ tmdb_id: tmdbId, list_type: listType }).then(() => {})
+        : moviesApi.remove(tmdbId, listType),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lists', tmdbId] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      queryClient.invalidateQueries({ queryKey: ['movies'] });
+    },
+  });
 
-  const remove = async (listType: string) => {
-    await moviesApi.remove(Number(id), listType);
-    checkLists();
-  };
-
-  if (!movie) return <div className="empty">Loading...</div>;
+  if (isLoading) return <div className="empty">Loading...</div>;
+  if (error) return <div className="empty">Failed to load movie</div>;
+  if (!movie) return <div className="empty">Movie not found</div>;
 
   const trailer = movie.videos?.results?.find(
     v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')
@@ -45,7 +57,7 @@ export default function MoviePage() {
       </Link>
 
       <div className="detail-header">
-        <img className="detail-poster" src={img(movie.poster_path, 'w500')} alt={movie.title} />
+        <img className="detail-poster" src={img(movie.poster_path, 'w500')} alt={movie.title} loading="lazy" />
         <div className="detail-info">
           <h1>{movie.title}</h1>
           <p style={{ color: 'var(--muted)' }}>
@@ -60,12 +72,15 @@ export default function MoviePage() {
           </div>
 
           <div className="detail-actions">
-            {inList.watchlist
-              ? <button className="btn btn-accent active" onClick={() => remove('watchlist')}>✓ In Watchlist</button>
-              : <button className="btn btn-outline" onClick={() => add('watchlist')}>Add to Watchlist</button>}
-            {inList.watched
-              ? <button className="btn btn-accent active" onClick={() => remove('watched')}>✓ Watched</button>
-              : <button className="btn btn-outline" onClick={() => add('watched')}>Mark Watched</button>}
+            {listsData?.watchlist
+              ? <button className="btn btn-accent active" onClick={() => listMutation.mutate({ action: 'remove', listType: 'watchlist' })}>✓ In Watchlist</button>
+              : <button className="btn btn-outline" onClick={() => listMutation.mutate({ action: 'add', listType: 'watchlist' })}>Add to Watchlist</button>}
+            {listsData?.watched
+              ? <button className="btn btn-accent active" onClick={() => listMutation.mutate({ action: 'remove', listType: 'watched' })}>✓ Watched</button>
+              : <button className="btn btn-outline" onClick={() => listMutation.mutate({ action: 'add', listType: 'watched' })}>Mark Watched</button>}
+            {listsData?.favorites
+              ? <button className="btn btn-accent active" onClick={() => listMutation.mutate({ action: 'remove', listType: 'favorites' })}>♥ Favorites</button>
+              : <button className="btn btn-outline" onClick={() => listMutation.mutate({ action: 'add', listType: 'favorites' })}>Add to Favorites</button>}
           </div>
 
           {trailer && (
@@ -90,7 +105,7 @@ export default function MoviePage() {
           <div className="actors-row">
             {movie.credits.cast.slice(0, 12).map(p => (
               <div className="actor-card" key={p.id}>
-                <img src={img(p.profile_path, 'w185')} alt={p.name} />
+                <img src={img(p.profile_path, 'w185')} alt={p.name} loading="lazy" />
                 <div className="name">{p.name}</div>
                 <div className="role">{p.character}</div>
               </div>
@@ -105,7 +120,7 @@ export default function MoviePage() {
           <div className="similar-row">
             {movie.similar.results.slice(0, 8).map(s => (
               <Link to={`/movie/${s.id}`} key={s.id} className="similar-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <img src={img(s.poster_path, 'w185')} alt={s.title} />
+                <img src={img(s.poster_path, 'w185')} alt={s.title} loading="lazy" />
                 <div className="title">{s.title}</div>
               </Link>
             ))}

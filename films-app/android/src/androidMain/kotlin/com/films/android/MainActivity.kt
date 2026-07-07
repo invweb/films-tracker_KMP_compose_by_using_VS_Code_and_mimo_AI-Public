@@ -8,7 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
             val tabs = listOf(
                 TabItem(Strings.get("tab_search"), Icons.Default.Search),
                 TabItem(Strings.get("tab_lists"), Icons.Default.Favorite),
-                TabItem(Strings.get("tab_premieres"), Icons.Default.CalendarMonth),
+                TabItem(Strings.get("tab_premieres"), Icons.Default.DateRange),
                 TabItem(Strings.get("tab_recommendations"), Icons.Default.Star)
             )
 

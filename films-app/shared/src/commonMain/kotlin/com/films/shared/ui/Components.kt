@@ -22,6 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.films.shared.model.Movie
 
+fun Double.formatOneDecimal(): String {
+    val whole = this.toLong()
+    val fraction = ((this - whole) * 10).toLong()
+    return "$whole.$fraction"
+}
+
 val DarkBg = Color(0xFF1a1a2e)
 val DarkSurface = Color(0xFF16213e)
 val Accent = Color(0xFFe94560)
@@ -65,7 +71,7 @@ fun MovieCard(movie: Movie, onClick: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "★ ${"%.1f".format(movie.vote_average)}",
+                    text = "★ ${movie.vote_average.formatOneDecimal()}",
                     color = Gold,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold

@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,12 +36,16 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier =
     var stats by remember { mutableStateOf<Stats?>(null) }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        watchlist = api.getWatchlist()
-        watched = api.getWatched()
-        favorites = api.getFavorites()
-        stats = api.getStats()
+    fun refresh() {
+        scope.launch {
+            watchlist = api.getWatchlist()
+            watched = api.getWatched()
+            favorites = api.getFavorites()
+            stats = api.getStats()
+        }
     }
+
+    LaunchedEffect(Unit) { refresh() }
 
     val currentList = when (activeTab) {
         ListTab.WATCHLIST -> watchlist
@@ -53,12 +59,17 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier =
     )
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        Text(Strings.get("lists_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(Strings.get("lists_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1f))
+            IconButton(onClick = { refresh() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Muted)
+            }
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         stats?.let { s ->
             Text(
-                text = Strings.get("lists_avg_rating", s.avgRating?.let { "%.1f".format(it) } ?: "—"),
+                text = Strings.get("lists_avg_rating", s.avgRating?.let { it.formatOneDecimal() } ?: "—"),
                 color = Gold,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
@@ -115,7 +126,7 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier =
                                 text = buildString {
                                     append(movie.release_date?.take(4) ?: "")
                                     movie.rating?.let { append(" · ${Strings.get("lists_rating", it.toString())}") }
-                                    movie.vote_average?.let { append(" · ★ ${"%.1f".format(it)}") }
+                                    movie.vote_average?.let { append(" · ★ ${it.formatOneDecimal()}") }
                                 },
                                 color = Muted,
                                 fontSize = 13.sp
@@ -124,9 +135,7 @@ fun ListsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier =
                         TextButton(onClick = {
                             scope.launch {
                                 api.removeFromList(movie.tmdb_id, activeTab.name.lowercase())
-                                watchlist = api.getWatchlist()
-                                watched = api.getWatched()
-                                favorites = api.getFavorites()
+                                refresh()
                             }
                         }) {
                             Text(Strings.get("lists_remove"), color = Accent, fontSize = 12.sp)

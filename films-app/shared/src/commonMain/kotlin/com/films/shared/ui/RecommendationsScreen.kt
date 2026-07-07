@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,19 +18,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.films.shared.api.FilmsApi
 import com.films.shared.model.Movie
+import kotlinx.coroutines.launch
 
 @Composable
 fun RecommendationsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     var recs by remember { mutableStateOf(emptyList<Movie>()) }
     var loading by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        recs = api.recommendations()
-        loading = false
+    fun refresh() {
+        scope.launch {
+            loading = true
+            recs = api.recommendations()
+            loading = false
+        }
     }
 
+    LaunchedEffect(Unit) { refresh() }
+
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        Text(Strings.get("recs_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(Strings.get("recs_title"), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextWhite, modifier = Modifier.weight(1f))
+            IconButton(onClick = { refresh() }) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Muted)
+            }
+        }
         Spacer(modifier = Modifier.height(4.dp))
         Text(Strings.get("recs_subtitle"), color = Muted, fontSize = 13.sp)
         Spacer(modifier = Modifier.height(16.dp))
@@ -60,7 +74,7 @@ fun RecommendationsScreen(api: FilmsApi, onMovieClick: (Int) -> Unit, modifier: 
                             )
                             Column(modifier = Modifier.padding(8.dp)) {
                                 Text(movie.title, color = TextWhite, fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 2)
-                                Text("★ ${"%.1f".format(movie.vote_average)}", color = Gold, fontSize = 12.sp)
+                                Text("★ ${movie.vote_average.formatOneDecimal()}", color = Gold, fontSize = 12.sp)
                             }
                         }
                     }

@@ -91,11 +91,10 @@ object Strings {
     }
 
     fun get(key: String, vararg args: Any): String {
-        val template = get(key)
-        return try {
-            template.format(*args)
-        } catch (e: Exception) {
-            template
+        var template = get(key)
+        for (arg in args) {
+            template = template.replaceFirst("%s", arg.toString())
         }
+        return template
     }
 }

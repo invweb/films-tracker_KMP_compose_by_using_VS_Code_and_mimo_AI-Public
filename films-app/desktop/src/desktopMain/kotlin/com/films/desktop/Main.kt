@@ -62,11 +62,25 @@ fun main() = application {
 
                     Box(modifier = Modifier.weight(1f).background(DarkBg)) {
                         when (currentScreen) {
-                            "search" -> SearchScreen(api) { id -> selectedMovieId = id; currentScreen = "detail" }
-                            "lists" -> ListsScreen(api) { id -> selectedMovieId = id; currentScreen = "detail" }
-                            "calendar" -> CalendarScreen(api)
-                            "recs" -> RecommendationsScreen(api) { id -> selectedMovieId = id; currentScreen = "detail" }
-                            "detail" -> MovieDetailScreen(api, selectedMovieId, { currentScreen = "search" }) { id -> selectedMovieId = id }
+                            "search" -> SearchScreen(
+                                api = api,
+                                onMovieClick = { id -> selectedMovieId = id; currentScreen = "detail" }
+                            )
+                            "lists" -> ListsScreen(
+                                api = api,
+                                onMovieClick = { id -> selectedMovieId = id; currentScreen = "detail" }
+                            )
+                            "calendar" -> CalendarScreen(api = api)
+                            "recs" -> RecommendationsScreen(
+                                api = api,
+                                onMovieClick = { id -> selectedMovieId = id; currentScreen = "detail" }
+                            )
+                            "detail" -> MovieDetailScreen(
+                                api = api,
+                                movieId = selectedMovieId,
+                                onBack = { currentScreen = "search" },
+                                onMovieClick = { id -> selectedMovieId = id }
+                            )
                         }
                     }
                 }

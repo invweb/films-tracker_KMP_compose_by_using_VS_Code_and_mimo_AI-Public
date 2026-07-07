@@ -77,32 +77,64 @@ function getById(id: string): LocalMovie | undefined {
   return LOCAL_MOVIES.find(m => m.imdbID === id || String(toMovieId(m.imdbID)) === id);
 }
 
+function paginate<T>(items: T[], page: number, limit: number): { data: T[]; total: number; page: number; totalPages: number } {
+  const total = items.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  return {
+    data: items.slice(start, start + limit),
+    total,
+    page,
+    totalPages,
+  };
+}
+
 router.get('/search', async (req, res) => {
   const query = (req.query.query as string) || '';
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+
   if (!query.trim()) {
-    return res.json({ results: [] });
+    return res.json({ results: [], total: 0, page: 1, totalPages: 0 });
   }
   const results = searchLocal(query).map(toFrontend);
   results.forEach(m => {
     const local = LOCAL_MOVIES.find(l => toMovieId(l.imdbID) === m.id);
     if (local) upsertMovie(local);
   });
-  res.json({ results });
+  const paged = paginate(results, page, limit);
+  res.json({ results: paged.data, total: paged.total, page: paged.page, totalPages: paged.totalPages });
 });
 
-router.get('/trending', async (_req, res) => {
-  const results = LOCAL_MOVIES.filter(m => parseRating(m.imdbRating) >= 8.0).map(toFrontend);
+router.get('/trending', async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const results = LOCAL_MOVIES.filter(m => parseRating(m.imdbRating) >= 8.0)
+    .sort((a, b) => parseRating(b.imdbRating) - parseRating(a.imdbRating))
+    .map(toFrontend);
   results.forEach(m => {
     const local = LOCAL_MOVIES.find(l => toMovieId(l.imdbID) === m.id);
     if (local) upsertMovie(local);
   });
-  res.json({ results });
+  const paged = paginate(results, page, limit);
+  res.json({ results: paged.data, total: paged.total, page: paged.page, totalPages: paged.totalPages });
 });
 
-router.get('/upcoming', async (_req, res) => {
-  const upcoming = LOCAL_MOVIES.filter(m => m.Year === '2025' || m.Year === '2024');
+router.get('/upcoming', async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const now = new Date();
+  const upcoming = LOCAL_MOVIES.filter(m => {
+    const year = parseInt(m.Year);
+    return year >= now.getFullYear() - 1;
+  }).sort((a, b) => {
+    const dateA = a.Released || `${a.Year}-12-31`;
+    const dateB = b.Released || `${b.Year}-12-31`;
+    return dateA.localeCompare(dateB);
+  });
   upcoming.forEach(upsertMovie);
-  res.json({ results: upcoming.map(toFrontend) });
+  const paged = paginate(upcoming.map(toFrontend), page, limit);
+  res.json({ results: paged.data, total: paged.total, page: paged.page, totalPages: paged.totalPages });
 });
 
 router.get('/movie/:id', async (req, res) => {
