@@ -2,9 +2,17 @@
 
 A cross-platform movie tracking app with recommendations, ratings, and premiere calendar. Built with **Kotlin Multiplatform (KMP)** + **Compose Multiplatform** and a Node.js backend.
 
+## Screenshots
+
+### Desktop (KMP)
 ![Search](screenshots/search.png)
 ![Movie Detail](screenshots/movie-detail.png)
 ![Premieres](screenshots/calendar.png)
+
+### Android (KMP)
+| Search | Movie Detail |
+|--------|-------------|
+| ![Android Search](screenshots/android-search.png) | ![Android Detail](screenshots/android-detail.png) |
 
 ## Features
 
@@ -50,7 +58,16 @@ export JAVA_HOME=/opt/homebrew/opt/openjdk@17  # or your JDK 17+ path
 ./gradlew :desktop:run
 ```
 
-### 3. Web Client (React — alternative)
+### 3. Android App
+
+```bash
+cd films-app
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17
+export ANDROID_HOME=~/Library/Android/sdk
+./gradlew :android:installDebug   # installs on connected device/emulator
+```
+
+### 4. Web Client (React — alternative)
 
 ```bash
 cd web
@@ -77,12 +94,9 @@ films-app/
 │           ├── RecommendationsScreen.kt
 │           └── MovieDetailScreen.kt
 ├── desktop/                     # Desktop app (JVM) ✅
-│   └── src/desktopMain/
 ├── web/                         # Web app (WasmJS)
-│   └── src/wasmJsMain/
-├── android/                     # Android app
-│   └── src/main/
-├── build.gradle.kts             # Root build file
+├── android/                     # Android app ✅
+├── build.gradle.kts
 ├── settings.gradle.kts
 └── gradlew
 ```

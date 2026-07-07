@@ -4,7 +4,8 @@
     <application
         android:label="Films"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Films">
+        android:theme="@style/Theme.Films"
+        android:networkSecurityConfig="@xml/network_security_config">
         <activity
             android:name=".MainActivity"
             android:exported="true"
