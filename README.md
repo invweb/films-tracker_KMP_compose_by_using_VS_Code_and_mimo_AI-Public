@@ -4,6 +4,9 @@ A cross-platform movie tracking app with recommendations, ratings, and premiere 
 
 ## Screenshots
 
+### Desktop (KMP)
+![Desktop Search](screenshots/desktop-search.png)
+
 ### Web (React)
 ![Search](screenshots/search.png)
 ![Movie Detail](screenshots/movie-detail.png)

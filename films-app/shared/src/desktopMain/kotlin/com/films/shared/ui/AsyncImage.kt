@@ -15,8 +15,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+private val httpClient = HttpClient(CIO) {}
 
 @Composable
 actual fun AsyncImage(
@@ -34,11 +40,18 @@ actual fun AsyncImage(
             return@LaunchedEffect
         }
         try {
-            val client = HttpClient()
-            val bytes = client.get(imageUrl).readBytes()
-            client.close()
+            val bytes = withContext(Dispatchers.IO) {
+                httpClient.get(imageUrl) {
+                    timeout {
+                        requestTimeoutMillis = 15000
+                        connectTimeoutMillis = 10000
+                        socketTimeoutMillis = 10000
+                    }
+                }.readBytes()
+            }
             bitmap = loadImageBitmap(bytes.inputStream())
         } catch (e: Exception) {
+            println("Failed to load image: $imageUrl - ${e.message}")
             isError = true
         }
     }
