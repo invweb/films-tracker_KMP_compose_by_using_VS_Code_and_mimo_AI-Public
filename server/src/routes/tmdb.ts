@@ -171,7 +171,10 @@ router.get('/movie/:id', async (req, res) => {
       }
       return res.status(404).json({ error: 'Movie not found' });
     } catch {
-      const mock = MOCK_MOVIES.find(m => m.id === req.params.id || m.imdbID === req.params.id);
+      const paramId = req.params.id;
+      const mock = MOCK_MOVIES.find(m =>
+        m.id === paramId || m.imdbID === paramId || toMovieId(m.imdbID) === Number(paramId)
+      );
       if (mock) {
         upsertMovie(mock);
         return res.json({
