@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage as CoilAsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
@@ -28,13 +27,7 @@ actual fun AsyncImage(
                 .build(),
             contentDescription = contentDescription,
             modifier = modifier.background(DarkSurface),
-            contentScale = ContentScale.Crop,
-            onError = {
-                // Image failed to load, Coil shows placeholder automatically
-            },
-            onSuccess = {
-                // Image loaded successfully
-            },
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
     } else {
         PlaceholderImage(contentDescription, modifier)

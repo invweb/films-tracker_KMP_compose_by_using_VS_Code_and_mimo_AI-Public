@@ -51,7 +51,6 @@ actual fun AsyncImage(
             }
             bitmap = loadImageBitmap(bytes.inputStream())
         } catch (e: Exception) {
-            println("Failed to load image: $imageUrl - ${e.message}")
             isError = true
         }
     }
@@ -63,18 +62,8 @@ actual fun AsyncImage(
             modifier = modifier.background(DarkSurface),
             contentScale = ContentScale.Crop,
         )
-    } else if (isError) {
-        PlaceholderImage(contentDescription, modifier)
     } else {
-        Box(
-            modifier = modifier.background(DarkSurface),
-            contentAlignment = Alignment.Center
-        ) {
-            androidx.compose.material3.Text(
-                text = "...",
-                color = Muted,
-            )
-        }
+        PlaceholderImage(contentDescription, modifier)
     }
 }
 
