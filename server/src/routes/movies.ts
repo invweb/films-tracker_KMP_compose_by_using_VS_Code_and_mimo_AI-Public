@@ -106,6 +106,65 @@ router.get('/stats', (_req, res) => {
   });
 });
 
+router.get('/stats/detailed', (_req, res) => {
+  const ratingDist = all(`
+    SELECT rating, COUNT(*) as count
+    FROM user_movies
+    WHERE rating IS NOT NULL
+    GROUP BY rating
+    ORDER BY rating
+  `);
+
+  const genreStats = all(`
+    SELECT m.genre_ids, COUNT(*) as count, AVG(um.rating) as avg_rating
+    FROM user_movies um
+    JOIN movies m ON um.tmdb_id = m.tmdb_id
+    WHERE um.list_type = 'watched' AND m.genre_ids IS NOT NULL
+    GROUP BY m.genre_ids
+    ORDER BY count DESC
+    LIMIT 10
+  `);
+
+  const monthlyStats = all(`
+    SELECT strftime('%Y-%m', created_at) as month, COUNT(*) as count
+    FROM user_movies
+    WHERE created_at IS NOT NULL
+    GROUP BY month
+    ORDER BY month DESC
+    LIMIT 12
+  `);
+
+  const ratingStats = get(`
+    SELECT
+      MIN(rating) as min_rating,
+      MAX(rating) as max_rating,
+      COUNT(rating) as rated_count
+    FROM user_movies
+    WHERE rating IS NOT NULL
+  `);
+
+  const totalMovies = get('SELECT COUNT(*) as count FROM user_movies');
+
+  const byListType = all(`
+    SELECT list_type, COUNT(*) as count, AVG(rating) as avg_rating
+    FROM user_movies
+    GROUP BY list_type
+  `);
+
+  res.json({
+    ratingDistribution: ratingDist,
+    genreStats,
+    monthlyStats: monthlyStats.reverse(),
+    ratingStats: {
+      min: ratingStats?.min_rating || 0,
+      max: ratingStats?.max_rating || 0,
+      ratedCount: ratingStats?.rated_count || 0,
+    },
+    totalMovies: totalMovies?.count || 0,
+    byListType,
+  });
+});
+
 router.get('/export', (_req, res) => {
   const movies = all(`
     SELECT um.list_type, m.title, m.release_date, um.rating, um.notes, um.tags, m.vote_average

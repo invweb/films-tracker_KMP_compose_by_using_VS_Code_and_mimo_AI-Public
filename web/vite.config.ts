@@ -13,4 +13,17 @@ export default defineConfig({
       '/api': 'http://localhost:3001',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query'],
+          motion: ['framer-motion'],
+          i18n: ['i18next', 'react-i18next'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 });
